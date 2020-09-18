@@ -125,6 +125,7 @@ class RenderWebGL extends EventEmitter {
      * @listens RenderWebGL#event:NativeSizeChanged
      */
     constructor (canvas, xLeft, xRight, yBottom, yTop) {
+        console.log("LOCAL LINK CONFIRMED")
         super();
 
         /** @type {WebGLRenderingContext} */
