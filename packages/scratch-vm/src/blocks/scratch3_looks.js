@@ -34,7 +34,7 @@ class Scratch3LooksBlocks {
         this.runtime.on('targetWasRemoved', this._onTargetWillExit);
 
         // Enable other blocks to use bubbles like ask/answer
-        this.runtime.on(Scratch3LooksBlocks.SAY_OR_THINK, this._updateBubble);
+        // this.runtime.on(Scratch3LooksBlocks.SAY_OR_THINK, this._updateBubble);
     }
 
     /**
@@ -333,7 +333,26 @@ class Scratch3LooksBlocks {
 
     say (args, util) {
         // @TODO in 2.0 calling say/think resets the right/left bias of the bubble
-        this.runtime.emit(Scratch3LooksBlocks.SAY_OR_THINK, util.target, 'say', args.MESSAGE);
+        // this.runtime.emit(Scratch3LooksBlocks.SAY_OR_THINK, util.target, 'say', args.MESSAGE);
+        const target = util.target;
+        const text = args.MESSAGE;
+        // iof (!text) return;
+
+        try {
+            const costume = target.getCostumes()[0];
+            const asset = costume.asset;
+            const format = asset.dataFormat;
+            if (format === this.runtime.storage.DataFormat.SVG) {
+                const costumeText = asset.decodeText();
+                const replacedText = costumeText.replace(/>[^<]*<\/tspan>/, `>${text}</tspan>`);
+                this.runtime.renderer.updateSVGSkin(costume.skinId, replacedText, [costume.rotationCenterX, costume.rotationCenterY]);
+                costume.size = this.runtime.renderer.getSkinSize(costume.skinId);
+            } else {
+                console.log('cant use this on bitmap costumes?')
+            }
+        } catch (e) {
+            console.log('error', e)
+        }
     }
 
     sayforsecs (args, util) {
