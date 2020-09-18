@@ -135,6 +135,12 @@ class Blocks extends React.Component {
         if (this.props.isVisible) {
             this.setLocale();
         }
+        setTimeout(() => {
+            this.props.vm.extensionManager.loadExtensionURL('videoSensing').then(() => {
+                this.handleCategorySelected('videoSensing');
+            });
+        }, 100);
+
     }
     shouldComponentUpdate (nextProps, nextState) {
         return (

@@ -1660,6 +1660,9 @@ class RenderWebGL extends EventEmitter {
         this._regionId = null;
     }
 
+    markCameraSkin(skinId) {
+        this._cameraSkinId = skinId;
+    }
     /**
      * Draw a set of Drawables, by drawable ID
      * @param {Array<int>} drawables The Drawable IDs to draw, possibly this._drawList.
@@ -1676,7 +1679,10 @@ class RenderWebGL extends EventEmitter {
 
         const gl = this._gl;
         let currentShader = null;
-
+        let cameraSkinUniforms = null;
+        if (this._cameraSkinId) {
+            cameraSkinUniforms = this._allSkins[this._cameraSkinId].getUniforms([100, 100]);
+        }
         const numDrawables = drawables.length;
         for (let drawableIndex = 0; drawableIndex < numDrawables; ++drawableIndex) {
             const drawableID = drawables[drawableIndex];
@@ -1728,10 +1734,19 @@ class RenderWebGL extends EventEmitter {
             if (opts.extraUniforms) {
                 Object.assign(uniforms, opts.extraUniforms);
             }
+            if (cameraSkinUniforms) {
+                uniforms.u_cameraTex = cameraSkinUniforms.u_skin;
+            }
 
             if (uniforms.u_skin) {
                 twgl.setTextureParameters(
                     gl, uniforms.u_skin, {minMag: drawable.useNearest(drawableScale) ? gl.NEAREST : gl.LINEAR}
+                );
+            }
+
+            if (cameraSkinUniforms) {
+                twgl.setTextureParameters(
+                    gl, uniforms.u_cameraTex, {minMag: gl.NEAREST}
                 );
             }
 

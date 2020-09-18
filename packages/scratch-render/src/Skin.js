@@ -50,7 +50,12 @@ class Skin extends EventEmitter {
              * The actual WebGL texture object for the skin.
              * @type {WebGLTexture}
              */
-            u_skin: null
+            u_skin: null,
+            /**
+             * The actual WebGL texture object for the skin.
+             * @type {WebGLTexture}
+             */
+            u_camera: null
         };
 
         /**

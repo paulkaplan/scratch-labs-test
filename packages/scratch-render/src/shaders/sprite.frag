@@ -40,8 +40,13 @@ uniform float u_aliasAmount;
 #endif // DRAW_MODE_lineSample
 
 uniform sampler2D u_skin;
+#ifdef ENABLE_camera
+uniform float u_camera;
+uniform sampler2D u_cameraTex;
+#endif // ENABLE_camera
 
 varying vec2 v_texCoord;
+varying vec2 v_cameraTexCoord;
 
 #if !defined(DRAW_MODE_silhouette) && (defined(ENABLE_color))
 // Branchless color conversions based on code from:
@@ -109,9 +114,11 @@ void main()
 {
 	#ifndef DRAW_MODE_lineSample
 	vec2 texcoord0 = v_texCoord;
+	vec2 cameratexcoord = v_cameraTexCoord;
 
 	#ifdef ENABLE_mosaic
 	texcoord0 = fract(u_mosaic * texcoord0);
+	cameratexcoord = fract(u_mosaic * cameratexcoord);
 	#endif // ENABLE_mosaic
 
 	#ifdef ENABLE_pixelate
@@ -119,6 +126,7 @@ void main()
 		// TODO: clean up "pixel" edges
 		vec2 pixelTexelSize = u_skinSize / u_pixelate;
 		texcoord0 = (floor(texcoord0 * pixelTexelSize) + kCenter) / pixelTexelSize;
+		cameratexcoord = (floor(cameratexcoord * pixelTexelSize) + kCenter) / pixelTexelSize;
 	}
 	#endif // ENABLE_pixelate
 
@@ -137,6 +145,20 @@ void main()
 		);
 
 		texcoord0 = rotationMatrix * offset + kCenter;
+		{
+		const float kRadius = 0.5;
+		offset = cameratexcoord - kCenter;
+		float offsetMagnitude = length(offset);
+		float whirlFactor = max(1.0 - (offsetMagnitude / kRadius), 0.0);
+		float whirlActual = u_whirl * whirlFactor * whirlFactor;
+		float sinWhirl = sin(whirlActual);
+		float cosWhirl = cos(whirlActual);
+		mat2 rotationMatrix = mat2(
+			cosWhirl, -sinWhirl,
+			sinWhirl, cosWhirl
+		);
+		cameratexcoord = rotationMatrix * offset + kCenter;
+		}
 	}
 	#endif // ENABLE_whirl
 
@@ -149,9 +171,21 @@ void main()
 
 		texcoord0 = kCenter + r * unit * kCenter;
 	}
+		{
+		vec2 vec = (cameratexcoord - kCenter) / kCenter;
+		float vecLength = length(vec);
+		float r = pow(min(vecLength, 1.0), u_fisheye) * max(1.0, vecLength);
+		vec2 unit = vec / vecLength;
+
+		cameratexcoord = kCenter + r * unit * kCenter;
+	}
 	#endif // ENABLE_fisheye
 
 	gl_FragColor = texture2D(u_skin, texcoord0);
+	#ifdef ENABLE_camera
+	vec3 camera_rgb = texture2D(u_cameraTex, cameratexcoord).rgb;
+	gl_FragColor.rgb = mix(gl_FragColor.rgb, camera_rgb, u_camera);
+	#endif // ENABLE_camera
 
     #ifdef ENABLE_ghost
     gl_FragColor.a *= u_ghost;

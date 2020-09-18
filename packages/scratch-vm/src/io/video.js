@@ -152,6 +152,7 @@ class Video {
             renderer.updateDrawableProperties(this._drawable, {
                 skinId: this._skinId
             });
+            renderer.markCameraSkin(this._skinId);
         }
 
         // if we haven't already created and started a preview frame render loop, do so

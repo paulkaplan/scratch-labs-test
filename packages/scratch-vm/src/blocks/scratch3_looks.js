@@ -542,19 +542,25 @@ class Scratch3LooksBlocks {
     }
 
     changeEffect (args, util) {
-        const effect = Cast.toString(args.EFFECT).toLowerCase();
+        let effect = Cast.toString(args.EFFECT).toLowerCase();
+        if (effect === 'ghost')
+            effect = 'camera';
         const change = Cast.toNumber(args.CHANGE);
         if (!util.target.effects.hasOwnProperty(effect)) return;
         let newValue = change + util.target.effects[effect];
         newValue = this.clampEffect(effect, newValue);
         util.target.setEffect(effect, newValue);
+        // util.target.setEffect('camera', 1);
     }
 
     setEffect (args, util) {
-        const effect = Cast.toString(args.EFFECT).toLowerCase();
+        let effect = Cast.toString(args.EFFECT).toLowerCase();
+        if (effect === 'ghost')
+            effect = 'camera';
         let value = Cast.toNumber(args.VALUE);
         value = this.clampEffect(effect, value);
         util.target.setEffect(effect, value);
+        // util.target.setEffect('camera', 1);
     }
 
     clearEffects (args, util) {

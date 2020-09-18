@@ -5,6 +5,7 @@ attribute vec2 a_position;
 attribute vec2 a_texCoord;
 
 varying vec2 v_texCoord;
+varying vec2 v_cameraTexCoord;
 
 #ifdef DRAW_MODE_lineSample
 uniform float u_positionScalar;
@@ -19,4 +20,6 @@ void main() {
     gl_Position = u_projectionMatrix * u_modelMatrix * vec4(a_position, 0, 1);
     #endif
     v_texCoord = a_texCoord;
+    v_cameraTexCoord = a_texCoord;
+    // v_cameraTexCoord = vec2(gl_Position.x / 2.0 + 0.5, gl_Position.y / -2.0 + 0.5);
 }

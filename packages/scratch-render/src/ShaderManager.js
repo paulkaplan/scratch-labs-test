@@ -138,6 +138,13 @@ ShaderManager.EFFECT_INFO = {
         mask: 1 << 6,
         converter: x => 1 - (Math.max(0, Math.min(x, 100)) / 100),
         shapeChanges: false
+    },
+    /** Camera effect */
+    camera: {
+        uniformName: 'u_camera',
+        mask: 1 << 7,
+        converter: x => 1 - (Math.max(0, Math.min(x, 100)) / 100),
+        shapeChanges: false
     }
 };
 
